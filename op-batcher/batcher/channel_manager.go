@@ -58,6 +58,7 @@ func (s *channelManager) Clear() {
 	s.log.Trace("clearing channel manager state")
 	s.blocks = s.blocks[:0]
 	s.tip = common.Hash{}
+	s.closed = false
 	s.clearPendingChannel()
 }
 
@@ -185,7 +186,7 @@ func (s *channelManager) TxData(l1Head eth.BlockID) (txData, error) {
 		return s.nextTxData()
 	}
 
-	// Avoid producing new frames if the channel has been explicitly closed.
+	// Avoid producing new frames if the channel manager has been explicitly closed.
 	if s.closed {
 		return txData{}, io.EOF
 	}
