@@ -28,7 +28,7 @@ var (
 	ErrL1AndL2Inconsistent = errors.New("l1 and l2 options must be specified together or both omitted")
 	ErrInvalidL2Claim      = errors.New("invalid l2 claim")
 	ErrInvalidL2ClaimBlock = errors.New("invalid l2 claim block number")
-	ErrDataDirRequired     = errors.New("datadir must be specified when in non-fetching mode")
+	ErrLocalDataRequired   = errors.New("datadir or fixture must be specified when in non-fetching mode")
 	ErrNoExecInServerMode  = errors.New("exec command must not be set when in server mode")
 )
 
@@ -36,7 +36,8 @@ type Config struct {
 	Rollup *rollup.Config
 	// DataDir is the directory to read/write pre-image data from/to.
 	// If not set, an in-memory key-value store is used and fetching data must be enabled
-	DataDir string
+	DataDir     string
+	FixturePath string
 
 	// L1Head is the block hash of the L1 chain head block
 	L1Head      common.Hash
@@ -94,8 +95,8 @@ func (c *Config) Check() error {
 	if (c.L1URL != "") != (c.L2URL != "") {
 		return ErrL1AndL2Inconsistent
 	}
-	if !c.FetchingEnabled() && c.DataDir == "" {
-		return ErrDataDirRequired
+	if !c.FetchingEnabled() && c.DataDir == "" && c.FixturePath == "" {
+		return ErrLocalDataRequired
 	}
 	if c.ServerMode && c.ExecCmd != "" {
 		return ErrNoExecInServerMode
@@ -186,6 +187,7 @@ func NewConfigFromCLI(log log.Logger, ctx *cli.Context) (*Config, error) {
 	return &Config{
 		Rollup:              rollupCfg,
 		DataDir:             ctx.String(flags.DataDir.Name),
+		FixturePath:         ctx.String(flags.FixturePath.Name),
 		L2URL:               ctx.String(flags.L2NodeAddr.Name),
 		L2ChainConfig:       l2ChainConfig,
 		L2Head:              l2Head,

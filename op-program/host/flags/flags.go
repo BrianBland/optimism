@@ -35,6 +35,11 @@ var (
 		Usage:   "Directory to use for preimage data storage. Default uses in-memory storage",
 		EnvVars: prefixEnvVars("DATADIR"),
 	}
+	FixturePath = &cli.StringFlag{
+		Name:    "fixturepath",
+		Usage:   "File path containing a preimage fixture.",
+		EnvVars: prefixEnvVars("FIXTURE_PATH"),
+	}
 	L2NodeAddr = &cli.StringFlag{
 		Name:    "l2",
 		Usage:   "Address of L2 JSON-RPC endpoint to use (eth and debug namespace required)",
@@ -122,6 +127,7 @@ var programFlags = []cli.Flag{
 	RollupConfig,
 	Network,
 	DataDir,
+	FixturePath,
 	L2NodeAddr,
 	L2GenesisPath,
 	L1NodeAddr,

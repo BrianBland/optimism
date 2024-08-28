@@ -149,7 +149,7 @@ func TestRequireDataDirInNonFetchingMode(t *testing.T) {
 	cfg.L1URL = ""
 	cfg.L2URL = ""
 	err := cfg.Check()
-	require.ErrorIs(t, err, ErrDataDirRequired)
+	require.ErrorIs(t, err, ErrLocalDataRequired)
 }
 
 func TestRejectExecAndServerMode(t *testing.T) {

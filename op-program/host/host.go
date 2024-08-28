@@ -137,8 +137,17 @@ func PreimageServer(ctx context.Context, logger log.Logger, cfg *config.Config, 
 	logger.Info("Starting preimage server")
 	var kv kvstore.KV
 	if cfg.DataDir == "" {
-		logger.Info("Using in-memory storage")
-		kv = kvstore.NewMemKV()
+		if cfg.FixturePath != "" {
+			logger.Info("Using fixture storage", "fixture", cfg.FixturePath)
+			var err error
+			kv, err = kvstore.FromFixture(cfg.FixturePath)
+			if err != nil {
+				return fmt.Errorf("failed to load fixture: %w", err)
+			}
+		} else {
+			logger.Info("Using in-memory storage")
+			kv = kvstore.NewMemKV()
+		}
 	} else {
 		logger.Info("Creating disk storage", "datadir", cfg.DataDir)
 		if err := os.MkdirAll(cfg.DataDir, 0755); err != nil {

@@ -1,6 +1,9 @@
 package kvstore
 
 import (
+	"encoding/hex"
+	"encoding/json"
+	"os"
 	"slices"
 	"sync"
 
@@ -19,6 +22,32 @@ var _ KV = (*MemKV)(nil)
 
 func NewMemKV() *MemKV {
 	return &MemKV{m: make(map[common.Hash][]byte)}
+}
+
+type fixture struct {
+	WitnessData map[common.Hash]string `json:"witnessData"`
+}
+
+func FromFixture(path string) (*MemKV, error) {
+	var f fixture
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	json.NewDecoder(file).Decode(&f)
+	memKV := NewMemKV()
+
+	for k, v := range f.WitnessData {
+		val, err := hex.DecodeString(v[2:])
+		if err != nil {
+			return nil, err
+		}
+		memKV.Put(k, val)
+	}
+
+	return memKV, nil
 }
 
 func (m *MemKV) Put(k common.Hash, v []byte) error {
